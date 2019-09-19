@@ -4,6 +4,7 @@
 
 import os
 import sys
+import logging
 
 #  gcr.io/xxx/yyy:zzz -> gcr.azk8s.cn/xxx/yyy:zzz, for example gcr.io/google_containers/kube-apiserver:v1.14.1
 #  k8s.gcr.io/xxx:yyy => gcr.io/google-containers/xxx:yyy -> gcr.azk8s.cn/google-containers/xxx:yyy, for example k8s.gcr.io/kube-apiserver:v1.14.1
@@ -28,8 +29,7 @@ converts = [
 def execute_sys_cmd(cmd):
     result = os.system(cmd)
     if result != 0:
-        print(cmd + " failed.")
-        sys.exit(-1)
+        logging.info(cmd + " failed.")
 
 
 def usage():
@@ -37,7 +37,8 @@ def usage():
 
 
 def pull_and_tag_image(image):
-    imageArray = image.strip().split('/')
+    image = image.strip()
+    imageArray = image.split('/')
     newImage = ''
     for cvt in converts:
         if imageArray[0] == cvt['prefix']:
