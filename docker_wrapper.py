@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # coding=utf8
 # utf8 without BOM
 
@@ -6,24 +6,7 @@ import os
 import sys
 import logging
 
-#  gcr.io/xxx/yyy:zzz -> gcr.azk8s.cn/xxx/yyy:zzz, for example gcr.io/google_containers/kube-apiserver:v1.14.1
-#  k8s.gcr.io/xxx:yyy => gcr.io/google-containers/xxx:yyy -> gcr.azk8s.cn/google-containers/xxx:yyy, for example k8s.gcr.io/kube-apiserver:v1.14.1
-#  quay.io/xxx/yyy:zzz -> quay.azk8s.cn/xxx/yyy:zzz, for example quay.io/coreos/flannel:v0.10.0-amd64
-
-converts = [
-    {
-        'prefix': 'gcr.io',
-        'replace': lambda x: x.replace('gcr.io', 'gcr.azk8s.cn'),
-    },
-    {
-        'prefix': 'k8s.gcr.io',
-        'replace': lambda x: x.replace('k8s.gcr.io', 'gcr.azk8s.cn/google-containers'),
-    },
-    {
-        'prefix': 'quay.io',
-        'replace': lambda x: x.replace('quay.io', 'quay.azk8s.cn'),
-    }
-]
+MAP_DICT = {'gcr.io': 'gcr.azk8s.cn', 'k8s.gcr.io': 'gcr.azk8s.cn/google-containers', 'quay.io': 'quay.azk8s.cn'}
 
 
 def execute_sys_cmd(cmd):
@@ -38,21 +21,19 @@ def usage():
 
 def pull_and_tag_image(image):
     image = image.strip()
-    imageArray = image.split('/')
-    newImage = ''
-    for cvt in converts:
-        if imageArray[0] == cvt['prefix']:
-            newImage = cvt['replace'](image)
-            break
-    if newImage:
-        print("-- pull {image} from {newimage} instead --".format(image=image, newimage=newImage))
-        cmd = "docker pull {image}".format(image=newImage)
+    image_array = image.split('/')
+    new_image = ''
+    if MAP_DICT.get(image_array[0], 0):
+        new_image = image.replace(image_array[0], MAP_DICT.get(image_array[0]))
+    if new_image:
+        print("-- pull {image} from {new_image} instead --".format(image=image, new_image=new_image))
+        cmd = "docker pull {image}".format(image=new_image)
         execute_sys_cmd(cmd)
 
-        cmd = "docker tag {newImage} {image}".format(newImage=newImage, image=image)
+        cmd = "docker tag {new_image} {image}".format(new_image=new_image, image=image)
         execute_sys_cmd(cmd)
 
-        cmd = "docker rmi {newImage}".format(newImage=newImage)
+        cmd = "docker rmi {new_image}".format(new_image=new_image)
         execute_sys_cmd(cmd)
 
         print("-- pull {image} done --".format(image=image))
