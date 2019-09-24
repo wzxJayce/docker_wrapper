@@ -24,3 +24,4 @@ gcr.io/kubeflow-images-public/profile-controller:v20190619-v0-219-gbd3daa8c-dirt
 gcr.io/kubeflow-images-public/pytorch-operator:v1.0.0-rc.0
 gcr.io/google_containers/spartakus-amd64:v1.1.0
 gcr.io/kubeflow-images-public/tf_operator:v0.6.0.rc0
+gcr.io/kubeflow-images-public/kfam:v20190612-v0-170-ga06cdb79-dirty-a33ee4
